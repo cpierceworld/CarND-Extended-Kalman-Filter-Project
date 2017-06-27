@@ -54,16 +54,22 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 	//Calculating K
 	MatrixXd K =  this->P_ * Ht * Si;
 
-	//Convert current state to "radar"
-	double rho = sqrt(this->x_(0)*this->x_(0) + this->x_(1)*this->x_(1));
+	//recover state parameters
+	double px = this->x_(0);
+	double py = this->x_(1);
+	double vx = this->x_(2);
+	double vy = this->x_(3);
 
-	if(fabs(rho) < 0.0001) {
+	//Convert current state to "radar"
+	double rho = sqrt(px*px + py*py);
+
+	if(fabs(rho) < 0.00001) {
 		// avoid division by zero
-		rho = 0.0001;
+		rho = 0.00001;
 	}
 
-	double phi = atan2(this->x_(1),this->x_(0));
-	double rho_dot = (this->x_(0) * this->x_(2) + this->x_(1) * this->x_(3)) / rho;
+	double phi = atan2(py,px);
+	double rho_dot = (px * vx + py * vy) / rho;
 	
 	VectorXd x_radar = VectorXd(3);
 	x_radar(0) = rho;
